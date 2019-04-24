@@ -12,28 +12,10 @@ CPPFLAGS+= \
 
 CFLAGS+=$(CPPFLAGS)
 
-ifeq ($(HOPROTO), 1)
-HOPROTO_OBJ:= \
-	phttp_hoproto_export.o \
-	phttp_hoproto_import.o \
-	phttp_hoproto_close.o \
-	uv_psw_client.o
-endif
-
-ifeq ($(HOPROTO), 2)
 HOPROTO_OBJ:= \
 	phttp_hoproto_export2.o \
 	phttp_hoproto_import2.o \
 	phttp_hoproto_close2.o
-endif
-
-ifeq ($(HOPROTO), 3)
-HOPROTO_OBJ:= \
-	phttp_hoproto_export.o \
-	phttp_hoproto_import.o \
-	phttp_hoproto_close.o \
-	uv_psw_client.o
-endif
 
 OBJS:= \
 	cpp_gen/tcp.pb.o \

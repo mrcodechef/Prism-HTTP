@@ -16,21 +16,22 @@
                 hcs->peername_cache.peer_port);                                \
   } while (0)
 
+#define container_of(ptr, type, member) ({                      \
+        const typeof( ((type *)0)->member ) *__mptr = (ptr); \
+        (type *)( (char *)__mptr - offsetof(type,member) );})
+
 struct handoff_ctx {
   uv_write_t req;
   uv_buf_t buf[2];
   std::string *serialized_data;
-  uv_tcp_t *client;
+  http_client_socket_t *hcs;
 };
 
 static void
 after_close_tcp_monitor(uv_handle_t *_monitor)
 {
   uv_tcp_monitor_t *monitor = (uv_tcp_monitor_t *)_monitor;
-  uv_tcp_t *client = monitor->tcp;
-  http_client_socket_t *hcs = (http_client_socket_t *)client->data;
-
-  free(client);
+  http_client_socket_t *hcs = container_of(monitor, http_client_socket_t, monitor);  // TODO Fix this
   http_client_socket_deinit(hcs);
   free(hcs);
 }
@@ -39,8 +40,7 @@ static void
 handoff_done(uv_write_t *req, int status)
 {
   struct handoff_ctx *ctx = (struct handoff_ctx *)req->data;
-  uv_tcp_t *client = ctx->client;
-  http_client_socket_t *hcs = (http_client_socket_t *)client->data;
+  http_client_socket_t *hcs = ctx->hcs;
 
   if (status != 0) {
     uv_perror("handoff_done", status);
@@ -55,31 +55,27 @@ handoff_done(uv_write_t *req, int status)
   free(ctx);
 
   int evfd;
-  uv_poll_stop((uv_poll_t *)&hcs->monitor);
   uv_fileno((uv_handle_t *)&hcs->monitor, &evfd);
-  close(evfd);
   uv_close((uv_handle_t *)&hcs->monitor, after_close_tcp_monitor);
+  close(evfd);
 }
 
 static void
-after_close_tcp(uv_tcp_monitor_t *monitor)
+after_real_close(uv_tcp_monitor_t *monitor)
 {
   int error;
   bool serialize_ok;
-  uv_tcp_t *client = (uv_tcp_t *)monitor->tcp;
-  http_client_socket_t *hcs = (http_client_socket_t *)client->data;
+  http_client_socket_t *hcs =
+    container_of(monitor, http_client_socket_t, monitor);  // TODO Fix this
   http_server_handoff_data_t *ho_data =
       (http_server_handoff_data_t *)hcs->res.handoff_data;
-  prism::HTTPHandoffReq *ho_req = (prism::HTTPHandoffReq *)monitor->super.data;
-
-
+  prism::HTTPHandoffReq *ho_req = (prism::HTTPHandoffReq *)hcs->export_data;
 
   PROF(PROF_TCP_CLOSE);
 
   struct handoff_ctx *ctx = (struct handoff_ctx *)malloc(sizeof(*ctx));
   assert(ctx != NULL);
 
-  std::cout << "ByteSizeLong: " << ho_req->ByteSizeLong() << std::endl;
   ctx->serialized_data = new std::string(ho_req->ByteSizeLong(), '\0');
   serialize_ok = ho_req->SerializeToString(ctx->serialized_data);
   assert(serialize_ok);
@@ -98,7 +94,7 @@ after_close_tcp(uv_tcp_monitor_t *monitor)
   ctx->buf[0].len = sizeof(*header) + padlen;
   ctx->buf[1].base = const_cast<char *>(ctx->serialized_data->c_str());
   ctx->buf[1].len = ctx->serialized_data->size();
-  ctx->client = client;
+  ctx->hcs = hcs;
   ctx->req.data = ctx;
 
   error = uv_write(&ctx->req, (uv_stream_t *)&ho_data->dest, ctx->buf, 2,
@@ -167,6 +163,17 @@ export_all(uv_tcp_t *client, prism::HTTPHandoffReq **ho_reqp)
 }
 
 static void
+after_close(uv_handle_t *_client)
+{
+  int error;
+  uv_tcp_t *client = (uv_tcp_t *)_client;
+  http_client_socket_t *hcs = (http_client_socket_t *)client->data;
+  error = uv_tcp_monitor_wait_close(&hcs->monitor, after_real_close);
+  assert(error == 0);
+  // free(client);
+}
+
+static void
 after_configure_switch(struct psw_req_base *req, void *data)
 {
   int error;
@@ -185,8 +192,9 @@ after_configure_switch(struct psw_req_base *req, void *data)
   error = export_all(client, &ho_req);
   assert(error == 0);
 
-  hcs->monitor.super.data = ho_req;
-  uv_tcp_monitor_schedule_close(&hcs->monitor, after_close_tcp);
+  hcs->export_data = ho_req;
+
+  uv_close((uv_handle_t *)client, after_close);
 }
 
 int
@@ -196,6 +204,8 @@ phttp_start_handoff(uv_tcp_t *client)
   struct global_config *gconf = (struct global_config *)client->loop->data;
   prism_switch_client_t *sw_client = (prism_switch_client_t *)gconf->sw_client;
   http_client_socket_t *hcs = (http_client_socket_t *)client->data;
+
+  PROF(PROF_RECEIVE_HTTP_REQ);
 
   error = uv_read_stop((uv_stream_t *)client);
   assert(error == 0);

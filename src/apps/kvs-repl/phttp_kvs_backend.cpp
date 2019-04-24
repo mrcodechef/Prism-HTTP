@@ -11,18 +11,20 @@
 #include <openssl/md5.h>
 
 #include "common.h"
-#include "leveldb_null_cache.h"
 
 static leveldb::DB *db;
 static struct phttp_args global_args;
 static std::string proxy_addr;
 static uint16_t proxy_port;
+static std::string next_server_addr;
+static uint16_t next_server_port;
 static uint32_t nworkers;
 
 static thread_local struct phttp_args thread_args;
 static thread_local http_server_socket_t hss;
 static thread_local http_handoff_server_socket_t hhss;
 static thread_local http_server_handoff_data_t *conn_pool;
+static thread_local http_server_handoff_data_t *next_server;
 static thread_local struct global_config gconf;
 static thread_local uint32_t rr_factor = 0;
 static thread_local uint32_t nconnection;
@@ -93,9 +95,7 @@ kvs_backend_request_handler(struct http_request *req, struct http_response *res,
   if (strncmp("GET", req->method, 3) == 0) {
     std::string val;
 
-    leveldb::ReadOptions option;
-    option.fill_cache = false;
-    s = db->Get(option,
+    s = db->Get(leveldb::ReadOptions(),
                 leveldb::Slice(req->path, req->path_len),
                 &val);
     if (s.IsNotFound()) {
@@ -141,7 +141,6 @@ kvs_backend_request_handler(struct http_request *req, struct http_response *res,
     if (req->body_len == 0) {
       res->status = 400;
       res->reason = "PUT need to have body\n";
-      http_print_request(req);
       return 0;
     }
 
@@ -153,6 +152,13 @@ kvs_backend_request_handler(struct http_request *req, struct http_response *res,
     if (!s.ok()) {
       res->status = 500;
       res->reason = "LevelDB PUT Failed\n";
+      return 0;
+    }
+
+    if (next_server != NULL) {
+      res->status = 600;
+      res->reason = "Handoff";
+      res->handoff_data = next_server;
       return 0;
     }
 
@@ -220,13 +226,37 @@ start_connect_to_proxy(uv_loop_t *loop, std::string proxy_addr,
   return 0;
 }
 
+static int
+start_connect_to_next_server(uv_loop_t *loop, std::string next_addr,
+                             uint16_t next_port, uint32_t workerid)
+{
+  int error;
+
+  uint32_t addr = inet_addr(next_addr.c_str());
+  if (addr == 0) {
+    next_server = NULL;
+    return 0;
+  }
+
+  next_server = (http_server_handoff_data_t *)malloc(sizeof(*next_server));
+  assert(next_server != NULL);
+
+  next_server->addr = addr;
+  next_server->port = htons(next_port + workerid);
+  error = start_connect(loop, next_server);
+  assert(error == 0);
+
+  return 0;
+}
+
 static void
 set_kvs_backend_args(argparse::ArgumentParser *parser)
 {
   parser->addArgument({"--proxy-addr"}, "KVS proxy server IPv4 address");
   parser->addArgument({"--proxy-port"}, "KVS proxy server server TCP port");
+  parser->addArgument({"--next-server-addr"}, "The next server address of replicate chain");
+  parser->addArgument({"--next-server-port"}, "The next server port of replicate chain");
   parser->addArgument({"--nworkers"}, "Number of workers");
-  parser->addArgument({"--dbdir"}, "Name of DB directory");
 }
 
 void *
@@ -264,6 +294,10 @@ worker_main(void *args)
   error = start_connect_to_proxy(loop, proxy_addr, proxy_port, id);
   assert(error == 0);
 
+  error = start_connect_to_next_server(loop, next_server_addr,
+      next_server_port, id);
+  assert(error == 0);
+
   error = init_signal_handling(loop);
   assert(error == 0);
 
@@ -297,8 +331,9 @@ main(int argc, char **argv)
   phttp_argparse_parse_all(&args, &global_args);
   proxy_addr = args.get<std::string>("proxy-addr");
   proxy_port = args.get<uint16_t>("proxy-port");
+  next_server_addr = args.get<std::string>("next-server-addr");
+  next_server_port = args.get<uint16_t>("next-server-port");
   nworkers = args.get<uint32_t>("nworkers");
-  std::string dbdir = args.get<std::string>("dbdir");
 
   struct rlimit lim;
   lim.rlim_cur = 10000;
@@ -308,7 +343,7 @@ main(int argc, char **argv)
 
   leveldb::Options options;
   options.create_if_missing = true;
-  leveldb::Status status = leveldb::DB::Open(options, dbdir, &db);
+  leveldb::Status status = leveldb::DB::Open(options, "./testdb", &db);
   assert(status.ok());
 
   /*

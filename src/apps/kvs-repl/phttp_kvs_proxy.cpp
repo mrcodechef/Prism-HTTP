@@ -14,21 +14,31 @@ static http_handoff_server_socket_t hhss;
 static http_server_handoff_data_t *backends;
 static struct global_config gconf;
 static struct phttp_args phttp_args;
+static uint32_t rr_factor = 0;
 static uint32_t nbackends = 0;
 
 static int
 kvs_proxy_request_handler(struct http_request *req, struct http_response *res,
                             bool imported)
 {
-  uint32_t hash;
+  if (strncmp(req->method, "GET", 3) == 0) {
+    res->status = 600;
+    res->reason = "Handoff";
 
-  hash = jenkins_hash(req->path, req->path_len, 0);
-  hash = hash % nbackends;
-  assert(hash >= 0 && hash <= 4);
+    res->handoff_data = backends + rr_factor;
+    if (++rr_factor == nbackends) {
+      rr_factor = 0;
+    }
 
-  res->status = 600;
-  res->reason = "Handoff";
-  res->handoff_data = backends + hash;
+    return 0;
+  }
+
+  if (strncmp(req->method, "PUT", 3) == 0) {
+    res->status = 600;
+    res->reason = "Handoff";
+    res ->handoff_data = backends;
+    return 0;
+  }
 
   return 0;
 }
@@ -61,7 +71,6 @@ set_kvs_proxy_args(argparse::ArgumentParser *parser)
   parser->addArgument({"--nworkers"}, "Number of workers");
 }
 
-#define CONN_POOL_SIZE 1
 static int
 start_connect_to_backends(uv_loop_t *loop, std::string bes_arg,
                           uint32_t workerid)
@@ -69,20 +78,18 @@ start_connect_to_backends(uv_loop_t *loop, std::string bes_arg,
   int error;
 
   std::vector<std::string> bes = split(bes_arg, ',');
-  nbackends = (uint32_t)bes.size() * CONN_POOL_SIZE;
+  nbackends = (uint32_t)bes.size();
   backends =
       (http_server_handoff_data_t *)calloc(sizeof(backends[0]), nbackends);
   assert(backends != NULL);
 
-  for (uint32_t i = 0; i < CONN_POOL_SIZE; i++) {
-    for (size_t j = 0; j < nbackends; j++) {
-      http_server_handoff_data_t *ho_data = backends + (CONN_POOL_SIZE * i + j);
-      std::vector<std::string> tmp = split(bes[j], ':');
-      ho_data->addr = inet_addr(tmp[0].c_str());
-      ho_data->port = htons((uint16_t)(atoi(tmp[1].c_str()) + workerid));
-      error = start_connect(loop, ho_data);
-      assert(error == 0);
-    }
+  for (size_t i = 0; i < nbackends; i++) {
+    http_server_handoff_data_t *ho_data = backends + i;
+    std::vector<std::string> tmp = split(bes[i], ':');
+    ho_data->addr = inet_addr(tmp[0].c_str());
+    ho_data->port = htons((uint16_t)(atoi(tmp[1].c_str()) + workerid));
+    error = start_connect(loop, ho_data);
+    assert(error == 0);
   }
 
   return 0;

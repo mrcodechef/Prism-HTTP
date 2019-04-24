@@ -64,12 +64,18 @@ uv_tcp_monitor_on_tcp_close(uv_poll_t *handle, int status, int events)
   ssize_t rsize;
   rsize = read(fd, &counter, sizeof(counter));
   assert(rsize == sizeof(counter));
-  assert(counter == 1);
+  if (counter != 1) {
+    printf("couter == %lu\n", counter);
+    assert(counter == 1);
+  }
+
+  uv_poll_stop(handle);
 
   uv_tcp_monitor_t *monitor = (uv_tcp_monitor_t *)handle;
   monitor->saved_close(monitor);
 }
 
+/*
 int
 uv_tcp_monitor_schedule_close(uv_tcp_monitor_t *monitor, uv_tcp_monitor_cb cb)
 {
@@ -81,12 +87,20 @@ uv_tcp_monitor_schedule_close(uv_tcp_monitor_t *monitor, uv_tcp_monitor_cb cb)
 
   error = uv_poll_start((uv_poll_t *)monitor, UV_READABLE,
                         uv_tcp_monitor_on_tcp_close);
-  if (error) {
-    return error;
-  }
+  assert(error == 0);
 
   monitor->saved_close = cb;
+  uv_close((uv_handle_t *)monitor->tcp, (uv_close_cb)free);
   uv_close((uv_handle_t *)monitor->tcp, NULL);
 
   return 0;
+}
+*/
+
+int
+uv_tcp_monitor_wait_close(uv_tcp_monitor_t *monitor, uv_tcp_monitor_cb cb)
+{
+  monitor->saved_close = cb;
+  return uv_poll_start((uv_poll_t *)monitor, UV_READABLE,
+                        uv_tcp_monitor_on_tcp_close);
 }

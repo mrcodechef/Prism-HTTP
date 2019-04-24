@@ -235,6 +235,7 @@ phttp_on_read(uv_stream_t *_client, ssize_t nread, const uv_buf_t *buf)
     /*
      * Check for Expect: 100-continue
      */
+    /*
     h = http_request_find_header(req, "Expect", 6);
     if (h != NULL) {
       if (strncmp(h->val, "100-continue", h->val_len) == 0) {
@@ -246,6 +247,7 @@ phttp_on_read(uv_stream_t *_client, ssize_t nread, const uv_buf_t *buf)
         }
       }
     }
+    */
 
   case HTTP_RECEIVING_BODY:
     if ((uint64_t)(mem->cur - req->body) == req->body_len) {
@@ -256,6 +258,7 @@ phttp_on_read(uv_stream_t *_client, ssize_t nread, const uv_buf_t *buf)
        * Unacceptable request format, may be oversized body or
        * pipelining. Abort request.
        */
+      printf("Unacceptable request format!\n");
       hcs->hs.close(client);
       return;
     } else {
@@ -290,6 +293,7 @@ phttp_on_read(uv_stream_t *_client, ssize_t nread, const uv_buf_t *buf)
 
   error = phttp_send_http_res(client, false);
   if (error) {
+    printf("Error returned from HTTP handler!\n");
     hcs->hs.close(client);
   }
 }

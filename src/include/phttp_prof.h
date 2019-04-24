@@ -6,6 +6,7 @@ enum prof_types { PROF_TYPE_EXPORT, PROF_TYPE_IMPORT };
 
 enum prof_ids {
   /* Export side */
+  PROF_RECEIVE_HTTP_REQ,
   PROF_LOCK,
   PROF_ADD,
   PROF_EXPORT_TCP,
@@ -16,6 +17,7 @@ enum prof_ids {
   PROF_SEND_PROTO_STATES,
 
   /* Import side */
+  PROF_HANDOFF,
   PROF_IMPORT_HTTP,
   PROF_HANDLE_HTTP_REQ,
   PROF_IMPORT_TCP,

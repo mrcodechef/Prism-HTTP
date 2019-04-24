@@ -4,15 +4,7 @@
 #include <membuf.h>
 #include <uv_tcp_monitor.h>
 
-#if HOPROTO == 1
-#include <uv_psw_client.h>
-#elif HOPROTO == 2
 #include <prism_switch/prism_switch_client.h>
-#elif HOPROTO == 3
-#include <uv_psw_client.h>
-#else
-#error Unknown handoff protocol type
-#endif
 
 enum http_state { HTTP_PARSING_HEADER, HTTP_RECEIVING_BODY };
 
@@ -43,10 +35,11 @@ typedef struct http_client_socket {
   struct http_response res;
 
   /*
-   * Import context
+   * Import/Export related data
    */
   bool imported;
   uv_tcp_monitor_t monitor;
+  void *export_data;
 
   /*
    * Buffers for sending response

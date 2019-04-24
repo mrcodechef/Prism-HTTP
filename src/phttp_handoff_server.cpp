@@ -39,7 +39,7 @@ static int
 http_handoff_client_socket_init(http_handoff_client_socket_t *hhcs)
 {
   hhcs->hs.close = http_handoff_client_socket_close;
-  membuf_init(&hhcs->req_mem, 16384000);
+  membuf_init(&hhcs->req_mem, 5000000);
   hhcs->req = new prism::HTTPHandoffReq();
   hhcs->hhss = NULL;
   return 0;
@@ -237,7 +237,7 @@ phttp_handoff_server_init(uv_loop_t *loop, http_handoff_server_socket_t *hhss)
   error = setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
   assert(error == 0);
 
-  error = uv_tcp_simultaneous_accepts(server, 1);
+  error = uv_tcp_simultaneous_accepts(server, 0);
   assert(error == 0);
 
   struct sockaddr_in addr;

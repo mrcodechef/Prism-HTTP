@@ -17,7 +17,7 @@ after_close_tcp_monitor(uv_handle_t *_monitor)
   uv_tcp_t *client = monitor->tcp;
   http_client_socket_t *hcs = (http_client_socket_t *)client->data;
 
-  free(client);
+  // free(client);
   http_client_socket_deinit(hcs);
   free(hcs);
 }

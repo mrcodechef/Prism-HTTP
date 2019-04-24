@@ -223,8 +223,10 @@ phttp_on_handoff(uv_tcp_t *ho_client, prism::HTTPHandoffReq *ho_req)
 {
   int error;
 
+  PROF(PROF_HANDOFF, ho_req->tcp().peer_addr(), ho_req->tcp().peer_port());
+
   /*
-   * First, import only http header and invoke request handler.
+   * First, import only http request and invoke request handler.
    * If the application returned 100 ~ 500 status code, we need
    * to import rest of the protocol states and send response to
    * the client.

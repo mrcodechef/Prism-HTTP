@@ -14,5 +14,9 @@ typedef struct uv_tcp_monitor_s {
 int uv_tcp_monitor_init(uv_loop_t *loop, uv_tcp_monitor_t *monitor,
                         uv_tcp_t *tcp);
 int uv_tcp_monitor_deinit(uv_tcp_monitor_t *monitor);
+/*
 int uv_tcp_monitor_schedule_close(uv_tcp_monitor_t *monitor,
+                                  uv_tcp_monitor_cb cb);
+                                  */
+int uv_tcp_monitor_wait_close(uv_tcp_monitor_t *monitor,
                                   uv_tcp_monitor_cb cb);

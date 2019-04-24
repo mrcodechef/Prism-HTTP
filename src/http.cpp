@@ -21,7 +21,7 @@ http_header_reset(struct http_header *header)
 int
 http_request_init(struct http_request *req)
 {
-  membuf_init(&req->mem, 8193000);
+  membuf_init(&req->mem, 5000000);
   req->minor_version = 0;
   req->method = NULL;
   req->method_len = 0;
@@ -102,9 +102,9 @@ int
 http_response_init(struct http_response *res)
 {
   membuf_init(&res->mem, 4096);
-  membuf_init(&res->body_mem, UINT16_MAX);
-  res->status = 404;
-  res->reason = "Not Found";
+  membuf_init(&res->body_mem, 5000000);
+  res->status = 0;
+  res->reason = "Uninitialized";
   for (uint32_t i = 0; i < HTTP_HEADERS_MAX; i++) {
     http_header_reset(res->headers + i);
   }
@@ -125,8 +125,8 @@ http_response_reset(struct http_response *res)
 {
   membuf_reset(&res->mem);
   membuf_reset(&res->body_mem);
-  res->status = 404;
-  res->reason = "Not Found";
+  res->status = 0;
+  res->reason = "Uninitialized";
   for (uint32_t i = 0; i < HTTP_HEADERS_MAX; i++) {
     http_header_reset(res->headers + i);
   }
