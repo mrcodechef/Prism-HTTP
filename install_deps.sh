@@ -1,7 +1,7 @@
 #!/bin/bash
 
 apt -y update
-apt install -y git build-essential wget automake cmake libtool libssl-dev
+apt install -y git build-essential wget automake cmake libtool libssl-dev pkg-config
 
 cd /root
 
