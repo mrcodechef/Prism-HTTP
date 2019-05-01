@@ -1,7 +1,7 @@
 INSTALL_PREFIX=/usr/local
 
 CXXFLAGS:= \
-	`pkg-config --cflags protobuf grpc libbcc` \
+	`pkg-config --cflags libbcc` \
 	-I include \
 	-fPIC \
 	-Wall \
