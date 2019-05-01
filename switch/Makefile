@@ -1,7 +1,6 @@
 INSTALL_PREFIX=/usr/local
 
 CXXFLAGS:= \
-	`pkg-config --cflags libbcc` \
 	-I include \
 	-fPIC \
 	-Wall \
@@ -9,7 +8,7 @@ CXXFLAGS:= \
 	-Ofast
 
 LDFLAGS:= \
-	`pkg-config --libs grpc++ protobuf libbcc`
+	-lbcc
 
 TARGETS:= bin/prism_switchd lib/libprism-switch-client.a
 
