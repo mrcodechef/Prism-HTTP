@@ -185,7 +185,6 @@ phttp_on_read(uv_stream_t *_client, ssize_t nread, const uv_buf_t *buf)
 {
   int error, nparsed;
   uint64_t body_len;
-  struct http_header *h;
   uv_tcp_t *client = (uv_tcp_t *)_client;
   http_client_socket_t *hcs = (http_client_socket_t *)client->data;
   struct http_request *req = &hcs->req;
@@ -231,23 +230,6 @@ phttp_on_read(uv_stream_t *_client, ssize_t nread, const uv_buf_t *buf)
       req->body_len = body_len;
       hcs->http_state = HTTP_RECEIVING_BODY;
     }
-
-    /*
-     * Check for Expect: 100-continue
-     */
-    /*
-    h = http_request_find_header(req, "Expect", 6);
-    if (h != NULL) {
-      if (strncmp(h->val, "100-continue", h->val_len) == 0) {
-        res->status = 100;
-        res->reason = "Continue";
-        error = phttp_send_http_res(client, true);
-        if (error) {
-          hcs->hs.close(client);
-        }
-      }
-    }
-    */
 
   case HTTP_RECEIVING_BODY:
     if ((uint64_t)(mem->cur - req->body) == req->body_len) {

@@ -35,7 +35,6 @@ after_change_owner(struct psw_req_base *req, void *data)
 static int
 start_change_owner(uv_tcp_t *client)
 {
-  int error;
   struct global_config *gconf = (struct global_config *)client->loop->data;
   prism_switch_client_t *sw_client = (prism_switch_client_t *)gconf->sw_client;
   http_client_socket_t *hcs = (http_client_socket_t *)client->data;

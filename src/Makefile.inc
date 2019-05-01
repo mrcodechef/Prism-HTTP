@@ -6,4 +6,5 @@ CPPFLAGS:= \
 	-L $(TOPDIR)/switch$(HOPROTO)/lib \
 	-Wall \
 	-Wno-write-strings \
-  -DNO_SSL_COMPATIBLE_INTERFACE
+	-Wno-int-to-pointer-cast \
+        -DNO_SSL_COMPATIBLE_INTERFACE

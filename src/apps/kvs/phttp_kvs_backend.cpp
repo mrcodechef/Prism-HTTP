@@ -28,13 +28,6 @@ static thread_local uint32_t rr_factor = 0;
 static thread_local uint32_t nconnection;
 
 static int
-after_get_res(struct http_response *res)
-{
-  free(res->headers[0].val);
-  return 0;
-}
-
-static int
 kvs_backend_request_handler(struct http_request *req, struct http_response *res,
                             bool imported)
 {
@@ -50,8 +43,6 @@ kvs_backend_request_handler(struct http_request *req, struct http_response *res,
     return 0;
   }
 
-  char *b16_md5hash;
-  char md5hash[MD5_DIGEST_LENGTH];
   leveldb::Status s;
   if (strncmp("GET", req->method, 3) == 0) {
     std::string val;

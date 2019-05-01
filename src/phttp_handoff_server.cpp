@@ -127,7 +127,7 @@ on_read(uv_stream_t *_client, ssize_t nread, const uv_buf_t *buf)
   uint32_t padlen;
   char *cursor = req_mem->begin;
   while (1) {
-    if (req_mem->cur - cursor < sizeof(uint32_t)) {
+    if ((uintptr_t)req_mem->cur - (uintptr_t)cursor < sizeof(uint32_t)) {
       break;
     }
 
