@@ -53,6 +53,3 @@ ldconfig
 
 cd /root/Prism-HTTP/src/proto
 bash gen.sh
-
-cd /root/Prism-HTTP
-make -j4
