@@ -1,0 +1,69 @@
+--- linux-4.18/net/ipv4/tcp.c	2018-08-12 20:41:04.000000000 +0000
++++ ../linux-4.18/net/ipv4/tcp.c	2019-02-28 16:39:04.142040413 +0000
+@@ -252,6 +252,7 @@
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/fcntl.h>
++#include <linux/file.h>
+ #include <linux/poll.h>
+ #include <linux/inet_diag.h>
+ #include <linux/init.h>
+@@ -270,6 +271,7 @@
+ #include <linux/time.h>
+ #include <linux/slab.h>
+ #include <linux/errqueue.h>
++#include <linux/eventfd.h>
+ #include <linux/static_key.h>
+
+ #include <net/icmp.h>
+@@ -454,6 +456,8 @@ void tcp_init_sock(struct sock *sk)
+
+ 	sk_sockets_allocated_inc(sk);
+ 	sk->sk_route_forced_caps = NETIF_F_GSO;
++
++	tp->tcp_monitor_ctx = NULL;
+ }
+ EXPORT_SYMBOL(tcp_init_sock);
+
+@@ -2705,6 +2709,31 @@ static int tcp_repair_options_est(struct
+ 	return 0;
+ }
+
++static int
++tcp_monitor_set_eventfd(struct tcp_sock *tp, char __user *optval,
++    unsigned int optlen)
++{
++  int eventfd;
++  struct eventfd_ctx *ctx;
++
++  if (copy_from_user(&eventfd, optval, sizeof(int)) != 0) {
++    return -EFAULT;
++  }
++
++  ctx = eventfd_ctx_fdget(eventfd);
++  if (IS_ERR(ctx)) {
++    return PTR_ERR(ctx);
++  }
++
++  if (tp->tcp_monitor_ctx != NULL) {
++    eventfd_ctx_put(tp->tcp_monitor_ctx);
++  }
++
++  tp->tcp_monitor_ctx = ctx;
++
++  return 0;
++}
++
+ /*
+  *	Socket option code for TCP.
+  */
+@@ -3047,6 +3076,9 @@ static int do_tcp_setsockopt(struct sock
+ 		else
+ 			tp->recvmsg_inq = val;
+ 		break;
++  case TCP_MONITOR_SET_EVENTFD:
++    err = tcp_monitor_set_eventfd(tp, optval, optlen);
++    break;
+ 	default:
+ 		err = -ENOPROTOOPT;
+ 		break;
