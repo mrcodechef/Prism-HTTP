@@ -2,7 +2,7 @@ TOPDIR:=../../..
 
 LDLIBS:= \
 	-lprism-switch-client \
-	`pkg-config --libs grpc grpc++ protobuf` \
+	`pkg-config --libs protobuf` \
 	-luv \
 	-ltomcrypt \
 	-ltfm

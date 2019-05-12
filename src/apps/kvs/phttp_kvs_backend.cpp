@@ -28,50 +28,6 @@ static thread_local uint32_t rr_factor = 0;
 static thread_local uint32_t nconnection;
 
 static int
-base64_encode(const char *message, size_t len, char **buf) {
-  BIO *bio, *b64;
-  FILE *stream;
-  int enc_size = 4 * ceil((double)len / 3);
-  *buf = (char *)malloc(enc_size + 1);
-  memset(*buf, 0, enc_size + 1);
-
-  stream = fmemopen(*buf, enc_size + 1, "w");
-  b64 = BIO_new(BIO_f_base64());
-  bio = BIO_new_fp(stream, BIO_NOCLOSE);
-  bio = BIO_push(b64, bio);
-  BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
-  BIO_write(bio, message, strlen(message));
-  BIO_flush(bio);
-  BIO_free_all(bio);
-  fclose(stream);
-
-  return 0;
-}
-
-static int
-base16_encode(const char *message, size_t len, char **buf)
-{
-  *buf = (char *)malloc(len * 2 + 1);
-  assert(*buf != NULL);
-
-  memset(*buf, 0, len * 2 + 1);
-
-  char *cursor = *buf;
-  for (size_t i = 0; i < len; i++) {
-    cursor += sprintf(cursor, "%02x", message[i] & 0xff);
-  }
-
-  return 0;
-}
-
-static int
-after_get_res(struct http_response *res)
-{
-  free(res->headers[0].val);
-  return 0;
-}
-
-static int
 kvs_backend_request_handler(struct http_request *req, struct http_response *res,
                             bool imported)
 {
@@ -87,8 +43,6 @@ kvs_backend_request_handler(struct http_request *req, struct http_response *res,
     return 0;
   }
 
-  char *b16_md5hash;
-  char md5hash[MD5_DIGEST_LENGTH];
   leveldb::Status s;
   if (strncmp("GET", req->method, 3) == 0) {
     std::string val;
@@ -118,19 +72,8 @@ kvs_backend_request_handler(struct http_request *req, struct http_response *res,
     memcpy(res->body_mem.begin, val.c_str(), val.size());
     membuf_consume(&res->body_mem, val.size());
 
-    /*
-    MD5((unsigned char *)res->body_mem.begin, membuf_used(&res->body_mem), (unsigned char *)md5hash);
-    error = base16_encode(md5hash, MD5_DIGEST_LENGTH, &b16_md5hash);
-    assert(error == 0);
-
-    error = http_response_add_header(res, "ETag", 4,
-        b16_md5hash, strlen(b16_md5hash));
-    assert(error == 0);
-    */
-
     res->status = 200;
     res->reason = "OK";
-    // res->after_res = after_get_res;
 
     return 0;
   }
@@ -155,16 +98,6 @@ kvs_backend_request_handler(struct http_request *req, struct http_response *res,
       res->reason = "LevelDB PUT Failed\n";
       return 0;
     }
-
-    /*
-    MD5((unsigned char *)req->body, req->body_len, (unsigned char *)md5hash);
-    error = base16_encode(md5hash, MD5_DIGEST_LENGTH, &b16_md5hash);
-    assert(error == 0);
-
-    error = http_response_add_header(res, "ETag", 4,
-        b16_md5hash, strlen(b16_md5hash));
-    assert(error == 0);
-    */
 
     res->status = 200;
     res->reason = "OK";
@@ -247,11 +180,7 @@ worker_main(void *args)
 
   hss.request_handler = kvs_backend_request_handler;
 
-#if HOPROTO == 2
   init_all_conf(loop, &thread_args, &hss, &hhss, &gconf);
-#elif HOPROTO == 1 || HOPROTO == 3
-  init_all_conf(&thread_args, &hss, &hhss, &gconf);
-#endif
 
   loop->data = &gconf;
 

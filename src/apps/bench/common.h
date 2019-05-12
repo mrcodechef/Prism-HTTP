@@ -81,7 +81,6 @@ init_handoff_server_conf(struct phttp_args *args,
   hhss->server_socket = hss;
 }
 
-#if HOPROTO == 2
 static void
 init_global_conf(struct phttp_args *args, struct global_config *gconf,
                  uv_loop_t *loop)
@@ -89,16 +88,7 @@ init_global_conf(struct phttp_args *args, struct global_config *gconf,
   std::string host = args->sw_addr + ":" + args->sw_port;
   gconf->sw_client = prism_switch_client_create(loop, host.c_str());
 }
-#elif HOPROTO == 1 || HOPROTO == 3
-static void
-init_global_conf(struct phttp_args *args, struct global_config *gconf)
-{
-  std::string host = args->sw_addr + ":" + args->sw_port;
-  gconf->sw_client = prism_switch_client_create(host.c_str());
-}
-#endif
 
-#if HOPROTO == 2
 static void
 init_all_conf(uv_loop_t *loop, struct phttp_args *args,
               http_server_socket_t *hss, http_handoff_server_socket_t *hhss,
@@ -108,16 +98,6 @@ init_all_conf(uv_loop_t *loop, struct phttp_args *args,
   init_handoff_server_conf(args, hhss, hss);
   init_global_conf(args, gconf, loop);
 }
-#elif HOPROTO == 1 || HOPROTO == 3
-static void
-init_all_conf(struct phttp_args *args, http_server_socket_t *hss,
-              http_handoff_server_socket_t *hhss, struct global_config *gconf)
-{
-  init_server_conf(args, hss);
-  init_handoff_server_conf(args, hhss, hss);
-  init_global_conf(args, gconf);
-}
-#endif
 
 static void
 dummy_work(uv_work_t *work)

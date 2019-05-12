@@ -128,11 +128,7 @@ main(int argc, char **argv)
 
       tweak_phttp_args(&phttp_args, i);
 
-#if HOPROTO == 2
       init_all_conf(loop, &phttp_args, &hss, &hhss, &gconf);
-#elif HOPROTO == 1 || HOPROTO == 3
-      init_all_conf(&phttp_args, &hss, &hhss, &gconf);
-#endif
 
       loop->data = &gconf;
 

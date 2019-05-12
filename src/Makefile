@@ -3,7 +3,7 @@ TOPDIR:=..
 include Makefile.inc
 
 CPPFLAGS+= \
-	`pkg-config --cflags grpc grpc++ protobuf` \
+	`pkg-config --cflags protobuf` \
 	-DTFM_DESC \
 	-DUSE_TFM \
 	-DTLS_REEXPORTABLE \
