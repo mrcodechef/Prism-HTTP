@@ -1,5 +1,29 @@
---- linux-4.18/net/ipv4/tcp.c	2018-08-12 20:41:04.000000000 +0000
-+++ ../linux-4.18/net/ipv4/tcp.c	2019-02-28 16:39:04.142040413 +0000
+diff -uprN linux-4.18-orig/linux-4.18/include/linux/tcp.h linux-4.18/include/linux/tcp.h
+--- linux-4.18-orig/linux-4.18/include/linux/tcp.h	2018-08-12 20:41:04.000000000 +0000
++++ linux-4.18/include/linux/tcp.h	2019-02-28 16:40:37.332767672 +0000
+@@ -387,6 +387,8 @@ struct tcp_sock {
+ 	 */
+ 	struct request_sock *fastopen_rsk;
+ 	u32	*saved_syn;
++
++	struct eventfd_ctx *tcp_monitor_ctx;
+ };
+
+ enum tsq_enum {
+diff -uprN linux-4.18-orig/linux-4.18/include/uapi/linux/tcp.h linux-4.18/include/uapi/linux/tcp.h
+--- linux-4.18-orig/linux-4.18/include/uapi/linux/tcp.h	2018-08-12 20:41:04.000000000 +0000
++++ linux-4.18/include/uapi/linux/tcp.h	2019-02-28 16:51:10.252267739 +0000
+@@ -124,6 +124,7 @@ enum {
+ #define TCP_FASTOPEN_NO_COOKIE	34	/* Enable TFO without a TFO cookie */
+ #define TCP_ZEROCOPY_RECEIVE	35
+ #define TCP_INQ			36	/* Notify bytes available to read as a cmsg on read */
++#define TCP_MONITOR_SET_EVENTFD 100 /* Set eventfd for monitoring physical delete of kernel tcp_sock */
+
+ #define TCP_CM_INQ		TCP_INQ
+
+diff -uprN linux-4.18-orig/linux-4.18/net/ipv4/tcp.c linux-4.18/net/ipv4/tcp.c
+--- linux-4.18-orig/linux-4.18/net/ipv4/tcp.c	2018-08-12 20:41:04.000000000 +0000
++++ linux-4.18/net/ipv4/tcp.c	2019-02-28 16:39:04.142040413 +0000
 @@ -252,6 +252,7 @@
  #include <linux/module.h>
  #include <linux/types.h>
@@ -67,8 +91,9 @@
  	default:
  		err = -ENOPROTOOPT;
  		break;
---- linux-4.18/net/ipv4/tcp_ipv4.c	2018-08-12 20:41:04.000000000 +0000
-+++ ../linux-4.18/net/ipv4/tcp_ipv4.c	2019-02-28 16:39:47.689440790 +0000
+diff -uprN linux-4.18-orig/linux-4.18/net/ipv4/tcp_ipv4.c linux-4.18/net/ipv4/tcp_ipv4.c
+--- linux-4.18-orig/linux-4.18/net/ipv4/tcp_ipv4.c	2018-08-12 20:41:04.000000000 +0000
++++ linux-4.18/net/ipv4/tcp_ipv4.c	2019-02-28 16:39:47.689440790 +0000
 @@ -55,6 +55,7 @@
  #include <linux/bottom_half.h>
  #include <linux/types.h>
@@ -89,8 +114,9 @@
  	sk_sockets_allocated_dec(sk);
  }
  EXPORT_SYMBOL(tcp_v4_destroy_sock);
---- linux-4.18/net/tls/tls_main.c	2018-08-12 20:41:04.000000000 +0000
-+++ ../linux-4.18/net/tls/tls_main.c	2019-03-05 13:38:54.663779821 +0000
+diff -uprN linux-4.18-orig/linux-4.18/net/tls/tls_main.c linux-4.18/net/tls/tls_main.c
+--- linux-4.18-orig/linux-4.18/net/tls/tls_main.c	2018-08-12 20:41:04.000000000 +0000
++++ linux-4.18/net/tls/tls_main.c	2019-03-05 13:38:54.663779821 +0000
 @@ -376,6 +376,74 @@ out:
  	return rc;
  }
