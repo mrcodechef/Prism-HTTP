@@ -45,6 +45,9 @@ libphttp.a: $(OBJS)
 apps: libphttp.a
 	make -C apps all
 
+install:
+	make -C apps install
+
 clean:
 	- rm -f $(OBJS) $(TARGETS)
 	- make -C apps clean

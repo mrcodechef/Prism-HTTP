@@ -17,11 +17,15 @@ TARGETS:= phttp-kvs-backend phttp-kvs-proxy
 
 all: $(TARGETS)
 
-phttp-kvs-backend: phttp_kvs_backend.o $(TOPDIR)/src/libphttp.a
+phttp-kvs-repl-backend: phttp_kvs_backend.o $(TOPDIR)/src/libphttp.a
 	$(CXX) $(CPPFLAGS) -o $@ $^ $(LDLIBS)
 
-phttp-kvs-proxy: phttp_kvs_proxy.o $(TOPDIR)/src/libphttp.a
+phttp-kvs-repl-proxy: phttp_kvs_proxy.o $(TOPDIR)/src/libphttp.a
 	$(CXX) $(CPPFLAGS) -o $@ $^ $(LDLIBS)
+
+install:
+	install phttp-kvs-repl-proxy /usr/local/bin
+	install phttp-kvs-repl-backend /usr/local/bin
 
 clean:
 	- rm $(TARGETS) $(OBJS)

@@ -23,5 +23,9 @@ phttp-kvs-backend: phttp_kvs_backend.o $(TOPDIR)/src/libphttp.a
 phttp-kvs-proxy: phttp_kvs_proxy.o $(TOPDIR)/src/libphttp.a
 	$(CXX) $(CPPFLAGS) -o $@ $^ $(LDLIBS)
 
+install: phttp-kvs-backend phttp-kvs-proxy
+	install phttp-kvs-proxy /usr/local/bin
+	install phttp-kvs-backend /usr/local/bin
+
 clean:
 	- rm $(TARGETS) $(OBJS)
