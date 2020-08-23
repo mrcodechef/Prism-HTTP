@@ -8,7 +8,8 @@ CXXFLAGS:= \
 	-Ofast
 
 LDFLAGS:= \
-	-lbcc
+	-lbcc \
+	-lpthread
 
 TARGETS:= bin/prism_switchd lib/libprism-switch-client.a
 
