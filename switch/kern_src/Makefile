@@ -29,6 +29,9 @@ else
 		EXTRA_CFLAGS='$(EXTRA_CFLAGS)' KBUILD_EXTRA_SYMBOLS='$(EXTRA_SYMBOLS)' modules
 endif
 
+install:
+	make -C $(LINUX_SRC) M=$(CURDIR) modules_install
+
 clean:
 	make -C $(LINUX_SRC) M=$(PWD) clean
 	rm -rf ./modules.order ./Module.symvers \
