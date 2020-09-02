@@ -7,8 +7,10 @@ mkdir /home/vagrant/Prism-HTTP/build
 export NWORKERS=2
 export BUILD_ROOT=/home/vagrant
 bash /home/vagrant/Prism-HTTP/scripts/install_deps.sh
-dpkg -i /home/vagrant/Prism-HTTP/deps/linux-headers-4.18.0-prism_amd64.deb
-dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-4.18.0-prism_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-4.18.0_4.18.0-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-headers-4.18.0_4.18.0-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-4.18.0-dbg_4.18.0-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-libc-dev_4.18.0-1_amd64.deb
 EOS
 
 Vagrant.configure("2") do |config|
