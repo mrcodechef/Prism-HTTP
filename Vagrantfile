@@ -81,6 +81,10 @@ cd Prism-HTTP
 cd src
 make -j $NPROC
 make install
+
+# Need this work around because the current switch
+# cannot respond to ARP request
+ip neigh add 172.16.10.10 lladdr 02:00:00:00:00:00 dev eth1
 EOS
 
 Vagrant.configure("2") do |config|
