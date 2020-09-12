@@ -7,6 +7,9 @@ typedef void (*uv_tcp_monitor_cb)(struct uv_tcp_monitor_s *);
 
 typedef struct uv_tcp_monitor_s {
   uv_poll_t super;
+#ifdef TCP_MONITOR_USE_CREME
+  int creme_fd;
+#endif
   uv_tcp_t *tcp;
   uv_tcp_monitor_cb saved_close;
 } uv_tcp_monitor_t;

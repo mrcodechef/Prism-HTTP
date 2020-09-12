@@ -40,7 +40,7 @@ uv_tcp_monitor_init(uv_loop_t *loop, uv_tcp_monitor_t *monitor, uv_tcp_t *tcp)
     goto err0;
   }
 
-  error = ioctl(creme_fd, (unsigned long)&val, sizeof(val));
+  error = ioctl(creme_fd, 0, (unsigned long)&val, sizeof(val));
   if (error == -1) {
     error = -errno;
     goto err1;
