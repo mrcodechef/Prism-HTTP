@@ -20,6 +20,7 @@ wget https://github.com/protocolbuffers/protobuf/archive/v3.6.0.1.tar.gz
 wget https://github.com/google/leveldb/archive/1.21.tar.gz
 git clone -b prism https://github.com/YutaroHayakawa/netmap
 git clone -b v0.10.0 https://github.com/iovisor/bcc
+git clone https://github.com/YutaroHayakawa/creme
 
 tar xvf tfm-0.13.1.tar.xz
 tar xvf v1.18.2.tar.gz

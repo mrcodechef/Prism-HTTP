@@ -29,6 +29,10 @@ make -j $NPROC
 make install
 cd ../
 
+cd creme
+make
+cd ../
+
 cd Prism-HTTP
 cd switch
 make
@@ -69,9 +73,14 @@ export BUILD_ROOT=/home/vagrant
 
 cd $BUILD_ROOT
 
+cd creme
+insmod creme.ko
+cd ../
+
 cd Prism-HTTP
 cd src
 make -j $NPROC
+make install
 EOS
 
 Vagrant.configure("2") do |config|
