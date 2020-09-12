@@ -3,6 +3,7 @@
 #include <linux/tcp.h>
 #include <stdlib.h>
 #include <sys/eventfd.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <assert.h>
 
@@ -24,12 +25,40 @@ uv_tcp_monitor_init(uv_loop_t *loop, uv_tcp_monitor_t *monitor, uv_tcp_t *tcp)
     return -errno;
   }
 
+#ifdef TCP_MONITOR_USE_CREME
+  /*
+   * Use creme (https://github.com/micchie/creme) to
+   * detect socket destruction. Only requires kernel
+   * module.
+   */
+  int creme_fd;
+  uint64_t val = ((uint64_t)evfd << 32) | sock;
+
+  creme_fd = open("/dev/creme", O_RDWR);
+  if (creme_fd == -1) {
+    error = -errno;
+    goto err0;
+  }
+
+  error = ioctl(creme_fd, (unsigned long)&val, sizeof(val));
+  if (error == -1) {
+    error = -errno;
+    goto err1;
+  }
+
+  monitor->creme_fd = creme_fd;
+#else
+  /*
+   * Use TCP_MONITOR_SET_EVENTFD setsockopt. Needs kernel
+   * modification.
+   */
   error = setsockopt(sock, IPPROTO_TCP, TCP_MONITOR_SET_EVENTFD, &evfd,
                      sizeof(int));
   if (error) {
     error = -errno;
     goto err0;
   }
+#endif
 
   error = uv_poll_init(loop, (uv_poll_t *)monitor, evfd);
   if (error) {
@@ -40,6 +69,10 @@ uv_tcp_monitor_init(uv_loop_t *loop, uv_tcp_monitor_t *monitor, uv_tcp_t *tcp)
 
   return 0;
 
+#ifdef TCP_MONITOR_USE_CREME
+err1:
+  close(creme_fd);
+#endif
 err0:
   close(evfd);
   return error;
@@ -72,6 +105,9 @@ uv_tcp_monitor_on_tcp_close(uv_poll_t *handle, int status, int events)
   uv_poll_stop(handle);
 
   uv_tcp_monitor_t *monitor = (uv_tcp_monitor_t *)handle;
+#ifdef TCP_MONITOR_USE_CREME
+  close(monitor->creme_fd);
+#endif
   monitor->saved_close(monitor);
 }
 
