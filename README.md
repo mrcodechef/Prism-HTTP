@@ -9,6 +9,7 @@ All sources are published under Apache2 license unless there is no license text 
 ### Setup Vagrant environment
 
 ```
+# On top of this repo
 vagrant up --provider libvirt
 ```
 
