@@ -8,9 +8,6 @@ apt-get install -y git build-essential wget automake \
 apt-get -y install bison build-essential cmake flex git libedit-dev \
   libllvm6.0 llvm-6.0-dev libclang-6.0-dev python zlib1g-dev libelf-dev
 
-# To use tcp-monitor
-cp -r /usr/src/linux-headers-4.18.0-prism3/include/uapi/linux/tcp.h /usr/include/linux/tcp.h
-
 cd $BUILD_ROOT
 
 wget https://github.com/libtom/tomsfastmath/releases/download/v0.13.1/tfm-0.13.1.tar.xz
@@ -20,7 +17,7 @@ wget https://github.com/protocolbuffers/protobuf/archive/v3.6.0.1.tar.gz
 wget https://github.com/google/leveldb/archive/1.21.tar.gz
 git clone -b prism https://github.com/YutaroHayakawa/netmap
 git clone -b v0.10.0 https://github.com/iovisor/bcc
-git clone https://github.com/YutaroHayakawa/creme
+git clone https://github.com/micchie/creme
 
 tar xvf tfm-0.13.1.tar.xz
 tar xvf v1.18.2.tar.gz

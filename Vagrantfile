@@ -5,7 +5,18 @@
 # Minimal network environment to make Prism work
 #
 
-$provision_base1 = <<-EOS
+$provision_prism_node_phase1 = <<-EOS
+echo "Installing dependencies (phase 1)"
+export NWORKERS=`nproc`
+export BUILD_ROOT=/home/vagrant
+bash /home/vagrant/Prism-HTTP/scripts/install_deps.sh
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-5.9.0-rc1_5.9.0-rc1-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-headers-5.9.0-rc1_5.9.0-rc1-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-5.9.0-rc1-dbg_5.9.0-rc1-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-libc-dev_5.9.0-rc1-1_amd64.deb
+EOS
+
+$provision_switch_phase1 = <<-EOS
 echo "Installing dependencies (phase 1)"
 export NWORKERS=`nproc`
 export BUILD_ROOT=/home/vagrant
@@ -16,7 +27,7 @@ dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-4.18.0-dbg_4.18.0-1_amd64.deb
 dpkg -i /home/vagrant/Prism-HTTP/deps/linux-libc-dev_4.18.0-1_amd64.deb
 EOS
 
-$provision_base2 = <<-EOS
+$provision_common_phase2 = <<-EOS
 echo "Installing dependencies (phase2)"
 export NWORKERS=`nproc`
 export BUILD_ROOT=/home/vagrant
@@ -38,7 +49,7 @@ cd switch
 make
 EOS
 
-$provision_switch = <<-EOS
+$provision_switch_phase3 = <<-EOS
 echo "Provisioning switch-specific part (phase 2)"
 export NWORKERS=`nproc`
 export BUILD_ROOT=/home/vagrant
@@ -48,7 +59,7 @@ cd $BUILD_ROOT
 cd netmap
 insmod netmap.ko
 
-# Don't do this separately. Otherwise, we'll lose the ssh connection.
+# Don't do these separately. Otherwise, we'll lose the ssh connection.
 rmmod virtio_net && insmod virtio_net.c/virtio_net.ko
 cd ../
 
@@ -66,7 +77,7 @@ insmod vale-bpf-native-vale0.ko
 cd ../../
 EOS
 
-$provision_prism_node = <<-EOS
+$provision_prism_node_phase3 = <<-EOS
 echo "Provisioning frontend-specific part (phase 2)"
 export NWORKERS=`nproc`
 export BUILD_ROOT=/home/vagrant
@@ -108,10 +119,10 @@ Vagrant.configure("2") do |config|
       ip: "172.16.10.11",
       mac: "02:00:00:00:00:01"
     # Provision
-    node.vm.provision "shell", inline: $provision_base1
+    node.vm.provision "shell", inline: $provision_prism_node_phase1
     node.vm.provision "reload"
-    node.vm.provision "shell", inline: $provision_base2
-    node.vm.provision "shell", inline: $provision_prism_node
+    node.vm.provision "shell", inline: $provision_common_phase2
+    node.vm.provision "shell", inline: $provision_prism_node_phase3
   end
 
   config.vm.define "backend1" do |node|
@@ -123,10 +134,10 @@ Vagrant.configure("2") do |config|
       ip: "172.16.10.12",
       mac: "02:00:00:00:00:02"
     # Provision
-    node.vm.provision "shell", inline: $provision_base1
+    node.vm.provision "shell", inline: $provision_prism_node_phase1
     node.vm.provision "reload"
-    node.vm.provision "shell", inline: $provision_base2
-    node.vm.provision "shell", inline: $provision_prism_node
+    node.vm.provision "shell", inline: $provision_common_phase2
+    node.vm.provision "shell", inline: $provision_prism_node_phase3
   end
 
   config.vm.define "backend2" do |node|
@@ -138,10 +149,10 @@ Vagrant.configure("2") do |config|
       ip: "172.16.10.13",
       mac: "02:00:00:00:00:03"
     # Provision
-    node.vm.provision "shell", inline: $provision_base1
+    node.vm.provision "shell", inline: $provision_prism_node_phase1
     node.vm.provision "reload"
-    node.vm.provision "shell", inline: $provision_base2
-    node.vm.provision "shell", inline: $provision_prism_node
+    node.vm.provision "shell", inline: $provision_common_phase2
+    node.vm.provision "shell", inline: $provision_prism_node_phase3
   end
 
   config.vm.define "client" do |node|
@@ -173,9 +184,9 @@ Vagrant.configure("2") do |config|
       libvirt__forward_mode: "veryisolated",
       libvirt__dhcp_enabled: false
     # Provision
-    node.vm.provision "shell", inline: $provision_base1
+    node.vm.provision "shell", inline: $provision_switch_phase1
     node.vm.provision "reload"
-    node.vm.provision "shell", inline: $provision_base2
-    node.vm.provision "shell", inline: $provision_switch
+    node.vm.provision "shell", inline: $provision_common_phase2
+    node.vm.provision "shell", inline: $provision_switch_phase3
   end
 end
