@@ -1,5 +1,18 @@
 #!/bin/bash
 
+count=0
+while :
+do
+  dig github.com > /dev/null
+  if [ $!=0 ]; then
+    echo "DNS is now ready (retry: $count)"
+    break
+  fi
+  count=$(($count + 1))
+  echo "Waiting until the DNS becomes ready (retry: $count)"
+  sleep 1
+done
+
 apt-get update
 apt-get install -y git build-essential wget automake \
   cmake libtool libssl-dev pkg-config libelf-dev
@@ -11,13 +24,52 @@ apt-get -y install bison build-essential cmake flex git libedit-dev \
 cd $BUILD_ROOT
 
 wget https://github.com/libtom/tomsfastmath/releases/download/v0.13.1/tfm-0.13.1.tar.xz
+if [ $? != 0 ]; then
+  echo "Failed to fetch libtfm"
+  exit 1
+fi
+
 wget https://github.com/libtom/libtomcrypt/archive/v1.18.2.tar.gz
+if [ $? != 0 ]; then
+  echo "Failed to fetch libtomcrypt"
+  exit 1
+fi
+
 wget https://github.com/libuv/libuv/archive/v1.26.0.tar.gz
+if [ $? != 0 ]; then
+  echo "Failed to fetch libuv"
+  exit 1
+fi
+
 wget https://github.com/protocolbuffers/protobuf/archive/v3.6.0.1.tar.gz
+if [ $? != 0 ]; then
+  echo "Failed to fetch protobuf"
+  exit 1
+fi
+
 wget https://github.com/google/leveldb/archive/1.21.tar.gz
+if [ $? != 0 ]; then
+  echo "Failed to fetch leveldb"
+  exit 1
+fi
+
 git clone -b prism https://github.com/YutaroHayakawa/netmap
+if [ $? != 0 ]; then
+  echo "Failed to fetch netmap"
+  exit 1
+fi
+
 git clone -b v0.10.0 https://github.com/iovisor/bcc
+if [ $? != 0 ]; then
+  echo "Failed to fetch bcc"
+  exit 1
+fi
+
 git clone https://github.com/micchie/creme
+if [ $? != 0 ]; then
+  echo "Failed to fetch creme"
+  exit 1
+fi
 
 tar xvf tfm-0.13.1.tar.xz
 tar xvf v1.18.2.tar.gz
