@@ -13,6 +13,9 @@ All sources are published under Apache2 license unless there is no license text 
 vagrant up --provider libvirt
 ```
 
+We observe sometimes the Vagrant fails to provision the nodes unexpectedly. In that case, destroy
+the nodes and retrying usually worked for us.
+
 ### Run `phttp-bench` application
 
 `phttp-bench` is an application which is useful for measuring the effect of the TCP handoff. Client specifies the sizeof the object to down load by path like `/1000` . The unit is byte. Frontend just handoff the requests to the backends without any processing and the backends send the respond with on-memory random bytes.
