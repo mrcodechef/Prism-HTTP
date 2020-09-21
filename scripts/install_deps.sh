@@ -1,18 +1,5 @@
 #!/bin/bash
 
-count=0
-while :
-do
-  dig github.com > /dev/null
-  if [ $!=0 ]; then
-    echo "DNS is now ready (retry: $count)"
-    break
-  fi
-  count=$(($count + 1))
-  echo "Waiting until the DNS becomes ready (retry: $count)"
-  sleep 1
-done
-
 apt-get update
 apt-get install -y git build-essential wget automake \
   cmake libtool libssl-dev pkg-config libelf-dev
