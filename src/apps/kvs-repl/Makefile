@@ -12,15 +12,15 @@ LDLIBS:= \
 
 include $(TOPDIR)/src/Makefile.inc
 
-OBJS:=phttp_kvs_backend.o phttp_kvs_proxy.o
-TARGETS:= phttp-kvs-backend phttp-kvs-proxy
+OBJS:=phttp_kvs_repl_backend.o phttp_kvs_repl_proxy.o
+TARGETS:= phttp-kvs-repl-backend phttp-kvs-repl-proxy
 
 all: $(TARGETS)
 
-phttp-kvs-repl-backend: phttp_kvs_backend.o $(TOPDIR)/src/libphttp.a
+phttp-kvs-repl-backend: phttp_kvs_repl_backend.o $(TOPDIR)/src/libphttp.a
 	$(CXX) $(CPPFLAGS) -o $@ $^ $(LDLIBS)
 
-phttp-kvs-repl-proxy: phttp_kvs_proxy.o $(TOPDIR)/src/libphttp.a
+phttp-kvs-repl-proxy: phttp_kvs_repl_proxy.o $(TOPDIR)/src/libphttp.a
 	$(CXX) $(CPPFLAGS) -o $@ $^ $(LDLIBS)
 
 install:
