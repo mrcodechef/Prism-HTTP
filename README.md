@@ -48,7 +48,7 @@ sudo phttp-bench-proxy --addr 172.16.10.11 --port 443 --mac 02:00:00:00:00:01 --
 # HTTP
 sudo phttp-bench-backend --addr 172.16.10.12 --port 80 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --nworkers 1
 
-# HTTPS (Please replace server.crt/key to your own one)
+# HTTPS
 sudo phttp-bench-backend --addr 172.16.10.12 --port 443 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --nworkers 1
 
 # On backend2 node
@@ -56,7 +56,7 @@ sudo phttp-bench-backend --addr 172.16.10.12 --port 443 --mac 02:00:00:00:00:02 
 # HTTP
 sudo phttp-bench-backend --addr 172.16.10.13 --port 80 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --nworkers 1
 
-# HTTPS (Please replace server.crt/key to your own one)
+# HTTPS
 sudo phttp-bench-backend --addr 172.16.10.13 --port 443 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --nworkers 1
 ```
 
@@ -102,7 +102,7 @@ mkdir /tmp/prism-leveldb
 # HTTP
 sudo phttp-kvs-backend --addr 172.16.10.12 --port 80 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --nworkers 1 --dbdir /tmp/prism-leveldb
 
-# HTTPS (Please replace server.crt/key to your own one)
+# HTTPS
 sudo phttp-kvs-backend --addr 172.16.10.12 --port 443 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --nworkers 1 --dbdir /tmp/prism-leveldb
 
 # On backend2 node
@@ -110,7 +110,7 @@ sudo phttp-kvs-backend --addr 172.16.10.12 --port 443 --mac 02:00:00:00:00:02 --
 # HTTP
 sudo phttp-kvs-backend --addr 172.16.10.13 --port 80 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --nworkers 1 --dbdir /tmp/prism-leveldb
 
-# HTTPS (Please replace server.crt/key to your own one)
+# HTTPS
 sudo phttp-kvs-backend --addr 172.16.10.13 --port 443 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --nworkers 1 --dbdir /tmp/prism-leveldb
 ```
 
@@ -155,7 +155,7 @@ sudo phttp-kvs-repl-proxy --addr 172.16.10.11 --port 443 --mac 02:00:00:00:00:01
 # HTTP
 sudo phttp-kvs-repl-backend --addr 172.16.10.12 --port 80 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --next-server-addr 172.16.10.13 --next-server-port 8080 --nworkers 1
 
-# HTTPS (Please replace server.crt/key to your own one)
+# HTTPS
 sudo phttp-kvs-repl-backend --addr 172.16.10.12 --port 443 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --next-server-addr 172.16.10.13 --next-server-port 8080 --nworkers 1
 
 # On backend2 node
@@ -163,7 +163,7 @@ sudo phttp-kvs-repl-backend --addr 172.16.10.12 --port 443 --mac 02:00:00:00:00:
 # HTTP
 sudo phttp-kvs-repl-backend --addr 172.16.10.13 --port 80 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --next-server-addr 0.0.0.0 --next-server-port 0 --nworkers 1
 
-# HTTPS (Please replace server.crt/key to your own one)
+# HTTPS
 sudo phttp-kvs-repl-backend --addr 172.16.10.13 --port 443 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --next-server-addr 0.0.0.0 --next-server-port 0 --nworkers 1
 ```
 
