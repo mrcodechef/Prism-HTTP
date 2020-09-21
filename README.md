@@ -18,7 +18,7 @@ the nodes and retrying usually worked for us.
 
 ### Run `phttp-bench` application
 
-`phttp-bench` is an application which is useful for measuring the effect of the TCP handoff. Client specifies the sizeof the object to down load by path like `/1000` . The unit is byte. Frontend just handoff the requests to the backends without any processing and the backends send the respond with on-memory binary blob.
+`phttp-bench` is an application which is useful for measuring the effect of the TCP handoff. Client specifies the sizeof the object to download by path like `/1000` . The unit is byte. Frontend just handoff the requests to the backends without any processing and the backends send the response with on-memory binary blob.
 
 #### Setup switch
 
@@ -37,7 +37,7 @@ sudo ./bin/prism_switchd -s vale0 -I $(pwd)/include -f src/cpp/prism_switch.bpf.
 sudo phttp-bench-proxy --addr 172.16.10.11 --port 80 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --nworkers 1
 
 # HTTPS (Please replace server.crt/key to your own one)
-sudo phttp-bench-proxy --addr 172.16.10.11 --port 80 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --tls --tls-crt server.crt --tls-key server.key --nworkers 1
+sudo phttp-bench-proxy --addr 172.16.10.11 --port 443 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --tls --tls-crt server.crt --tls-key server.key --nworkers 1
 ```
 
 #### Setup backends
@@ -49,7 +49,7 @@ sudo phttp-bench-proxy --addr 172.16.10.11 --port 80 --mac 02:00:00:00:00:01 --b
 sudo phttp-bench-backend --addr 172.16.10.12 --port 80 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --nworkers 1
 
 # HTTPS (Please replace server.crt/key to your own one)
-sudo phttp-bench-backend --addr 172.16.10.12 --port 80 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --nworkers 1
+sudo phttp-bench-backend --addr 172.16.10.12 --port 443 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --nworkers 1
 
 # On backend2 node
 
@@ -57,7 +57,7 @@ sudo phttp-bench-backend --addr 172.16.10.12 --port 80 --mac 02:00:00:00:00:02 -
 sudo phttp-bench-backend --addr 172.16.10.13 --port 80 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --nworkers 1
 
 # HTTPS (Please replace server.crt/key to your own one)
-sudo phttp-bench-backend --addr 172.16.10.13 --port 80 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --nworkers 1
+sudo phttp-bench-backend --addr 172.16.10.13 --port 443 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --nworkers 1
 ```
 
 #### Run test
@@ -65,4 +65,113 @@ sudo phttp-bench-backend --addr 172.16.10.13 --port 80 --mac 02:00:00:00:00:03 -
 ```
 # On client node
 curl http://172.16.10.11/1000  # Download the 1K objects
+```
+
+### Run `phttp-kvs` application
+
+`phttp-kvs` is a simple REST based object storage application. The object will be **sharded**.
+
+#### Setup switch
+
+```
+# On switch node
+cd /home/vagrant/Prism-HTTP/switch
+sudo ./bin/prism_switchd -s vale0 -I $(pwd)/include -f src/cpp/prism_switch.bpf.c -a 172.16.10.10:18080
+```
+
+#### Setup frontend
+
+```
+# On frontend1 node
+
+# HTTP
+sudo phttp-kvs-proxy --addr 172.16.10.11 --port 80 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --nworkers 1
+
+# HTTPS (Please replace server.crt/key to your own one)
+sudo phttp-kvs-proxy --addr 172.16.10.11 --port 443 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --tls --tls-crt server.crt --tls-key server.key --nworkers 1
+```
+
+#### Setup backends
+
+```
+# Common
+mkdir /tmp/prism-leveldb
+
+# On backend1 node
+
+# HTTP
+sudo phttp-kvs-backend --addr 172.16.10.12 --port 80 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --nworkers 1 --dbdir /tmp/prism-leveldb
+
+# HTTPS (Please replace server.crt/key to your own one)
+sudo phttp-kvs-backend --addr 172.16.10.12 --port 443 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --nworkers 1 --dbdir /tmp/prism-leveldb
+
+# On backend2 node
+
+# HTTP
+sudo phttp-kvs-backend --addr 172.16.10.13 --port 80 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --nworkers 1 --dbdir /tmp/prism-leveldb
+
+# HTTPS (Please replace server.crt/key to your own one)
+sudo phttp-kvs-backend --addr 172.16.10.13 --port 443 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --nworkers 1 --dbdir /tmp/prism-leveldb
+```
+
+#### Run test
+
+```
+# On client node
+curl -X PUT http://172.16.10.11/foo -d "foofoofoo"  # PUT object
+curl -X GET http://172.16.10.11/foo  # GET object
+curl -X DELETE http://172.16.10.11/foo  # DELETE object
+```
+
+### Run `phttp-kvs-repl` application
+
+`phttp-kvs-repl` is a simple REST based object storage application. The object will be **replicated**.
+
+#### Setup switch
+
+```
+# On switch node
+cd /home/vagrant/Prism-HTTP/switch
+sudo ./bin/prism_switchd -s vale0 -I $(pwd)/include -f src/cpp/prism_switch.bpf.c -a 172.16.10.10:18080
+```
+
+#### Setup frontend
+
+```
+# On frontend1 node
+
+# HTTP
+sudo phttp-kvs-repl-proxy --addr 172.16.10.11 --port 80 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --nworkers 1
+
+# HTTPS (Please replace server.crt/key to your own one)
+sudo phttp-kvs-repl-proxy --addr 172.16.10.11 --port 443 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --tls --tls-crt server.crt --tls-key server.key --nworkers 1
+```
+
+#### Setup backends
+
+```
+# On backend1 node
+
+# HTTP
+sudo phttp-kvs-repl-backend --addr 172.16.10.12 --port 80 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --next-server-addr 172.16.10.13 --next-server-port 8080 --nworkers 1
+
+# HTTPS (Please replace server.crt/key to your own one)
+sudo phttp-kvs-repl-backend --addr 172.16.10.12 --port 443 --mac 02:00:00:00:00:02 --backlog 8192 --ho-addr 172.16.10.12 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --next-server-addr 172.16.10.13 --next-server-port 8080 --nworkers 1
+
+# On backend2 node
+
+# HTTP
+sudo phttp-kvs-repl-backend --addr 172.16.10.13 --port 80 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --next-server-addr 0.0.0.0 --next-server-port 0 --nworkers 1
+
+# HTTPS (Please replace server.crt/key to your own one)
+sudo phttp-kvs-repl-backend --addr 172.16.10.13 --port 443 --mac 02:00:00:00:00:03 --backlog 8192 --ho-addr 172.16.10.13 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --proxy-addr 172.16.10.11 --proxy-port 8080 --tls --tls-crt /dev/null --tls-key /dev/null --next-server-addr 0.0.0.0 --next-server-port 0 --nworkers 1
+```
+
+#### Run test
+
+```
+# On client node
+curl -X PUT http://172.16.10.11/foo -d "foofoofoo"  # PUT object
+curl -X GET http://172.16.10.11/foo  # GET object
+# Delete operation is not implemented yet
 ```
