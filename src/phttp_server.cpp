@@ -348,8 +348,6 @@ on_tls_handshake_read(uv_stream_t *_client, ssize_t nread, const uv_buf_t *buf)
     int sock;
     uv_fileno((uv_handle_t *)client, &sock);
     error = tls_make_ktls(hcs->tls, sock);
-    perror("tls_make_ktls");
-    printf("error == %d\n", error);
     assert(error == 0);
     error = uv_read_start((uv_stream_t *)client, phttp_on_alloc, phttp_on_read);
     assert(error == 0);
