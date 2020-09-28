@@ -22,15 +22,10 @@ echo "Installing dependencies (phase 1)"
 export NWORKERS=`nproc`
 export BUILD_ROOT=/home/vagrant
 bash /home/vagrant/Prism-HTTP/scripts/install_deps.sh
-
-# Kernel update dependencies
-apt-get -y install build-essential bc flex bison libssl-dev libelf-dev
-wget https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/snapshot/net-next-0db0561d13df07978bea63a19f644fc16a60f54a.tar.gz
-tar xvf net-next-0db0561d13df07978bea63a19f644fc16a60f54a.tar.gz
-cd net-next-0db0561d13df07978bea63a19f644fc16a60f54a
-make olddefconfig
-make -j $NWORKERS bzImage && make -j $NWORKERS modules
-make modules_install && make install && make headers_install INSTALL_HDR_PATH=/usr
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-5.9.0-rc1_5.9.0-rc1-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-headers-5.9.0-rc1_5.9.0-rc1-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-5.9.0-rc1-dbg_5.9.0-rc1-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-libc-dev_5.9.0-rc1-1_amd64.deb
 EOS
 
 #
@@ -43,15 +38,10 @@ echo "Installing dependencies (phase 1)"
 export NWORKERS=`nproc`
 export BUILD_ROOT=/home/vagrant
 bash /home/vagrant/Prism-HTTP/scripts/install_deps.sh
-
-# Kernel update dependencies
-apt-get -y install build-essential bc flex bison libssl-dev libelf-dev
-wget https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/linux-4.18.tar.gz
-tar xvf linux-4.18.tar.gz
-cd linux-4.18
-make olddefconfig
-make -j $NWORKERS bzImage && make -j $NWORKERS modules
-make modules_install && make install && make headers_install INSTALL_HDR_PATH=/usr
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-4.18.0_4.18.0-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-headers-4.18.0_4.18.0-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-4.18.0-dbg_4.18.0-1_amd64.deb
+dpkg -i /home/vagrant/Prism-HTTP/deps/linux-libc-dev_4.18.0-1_amd64.deb
 EOS
 
 #
@@ -161,6 +151,18 @@ EOS
 
 def prism_node_setup_file_provisioner(config)
   config.vm.provision "file",
+    source: "deps/linux-image-5.9.0-rc1_5.9.0-rc1-1_amd64.deb",
+    destination: "/home/vagrant/Prism-HTTP/deps/"
+  config.vm.provision "file",
+    source: "deps/linux-headers-5.9.0-rc1_5.9.0-rc1-1_amd64.deb",
+    destination: "/home/vagrant/Prism-HTTP/deps/"
+  config.vm.provision "file",
+    source: "deps/linux-image-5.9.0-rc1-dbg_5.9.0-rc1-1_amd64.deb",
+    destination: "/home/vagrant/Prism-HTTP/deps/"
+  config.vm.provision "file",
+    source: "deps/linux-libc-dev_5.9.0-rc1-1_amd64.deb",
+    destination: "/home/vagrant/Prism-HTTP/deps/"
+  config.vm.provision "file",
     source: "src",
     destination: "/home/vagrant/Prism-HTTP/"
   config.vm.provision "file",
@@ -172,6 +174,18 @@ def prism_node_setup_file_provisioner(config)
 end
 
 def switch_node_setup_file_provisioner(config)
+  config.vm.provision "file",
+    source: "deps/linux-image-4.18.0_4.18.0-1_amd64.deb",
+    destination: "/home/vagrant/Prism-HTTP/deps/"
+  config.vm.provision "file",
+    source: "deps/linux-headers-4.18.0_4.18.0-1_amd64.deb",
+    destination: "/home/vagrant/Prism-HTTP/deps/"
+  config.vm.provision "file",
+    source: "deps/linux-image-4.18.0-dbg_4.18.0-1_amd64.deb",
+    destination: "/home/vagrant/Prism-HTTP/deps/"
+  config.vm.provision "file",
+    source: "deps/linux-libc-dev_4.18.0-1_amd64.deb",
+    destination: "/home/vagrant/Prism-HTTP/deps/"
   config.vm.provision "file",
     source: "src",
     destination: "/home/vagrant/Prism-HTTP/"
