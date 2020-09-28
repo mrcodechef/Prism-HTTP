@@ -10,31 +10,31 @@ apt-get -y install bison build-essential cmake flex git libedit-dev \
 
 cd $BUILD_ROOT
 
-wget https://github.com/libtom/tomsfastmath/releases/download/v0.13.1/tfm-0.13.1.tar.xz
+wget -nv https://github.com/libtom/tomsfastmath/releases/download/v0.13.1/tfm-0.13.1.tar.xz
 if [ $? != 0 ]; then
   echo "Failed to fetch libtfm"
   exit 1
 fi
 
-wget https://github.com/libtom/libtomcrypt/archive/v1.18.2.tar.gz
+wget -nv https://github.com/libtom/libtomcrypt/archive/v1.18.2.tar.gz
 if [ $? != 0 ]; then
   echo "Failed to fetch libtomcrypt"
   exit 1
 fi
 
-wget https://github.com/libuv/libuv/archive/v1.26.0.tar.gz
+wget -nv https://github.com/libuv/libuv/archive/v1.26.0.tar.gz
 if [ $? != 0 ]; then
   echo "Failed to fetch libuv"
   exit 1
 fi
 
-wget https://github.com/protocolbuffers/protobuf/archive/v3.6.0.1.tar.gz
+wget -nv https://github.com/protocolbuffers/protobuf/archive/v3.6.0.1.tar.gz
 if [ $? != 0 ]; then
   echo "Failed to fetch protobuf"
   exit 1
 fi
 
-wget https://github.com/google/leveldb/archive/1.21.tar.gz
+wget -nv https://github.com/google/leveldb/archive/1.21.tar.gz
 if [ $? != 0 ]; then
   echo "Failed to fetch leveldb"
   exit 1
@@ -58,11 +58,11 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-tar xvf tfm-0.13.1.tar.xz
-tar xvf v1.18.2.tar.gz
-tar xvf v1.26.0.tar.gz
-tar xvf v3.6.0.1.tar.gz
-tar xvf 1.21.tar.gz
+tar xf tfm-0.13.1.tar.xz
+tar xf v1.18.2.tar.gz
+tar xf v1.26.0.tar.gz
+tar xf v3.6.0.1.tar.gz
+tar xf 1.21.tar.gz
 
 cd $BUILD_ROOT/bcc
 mkdir build
