@@ -157,51 +157,15 @@ make install
 ip neigh add 172.16.10.10 lladdr 02:00:00:00:00:00 dev eth1
 EOS
 
-def prism_node_setup_file_provisioner(config)
+def setup_file_provisioner(config)
   config.vm.provision "file",
-    source: "deps/linux-image-5.9.0-rc1_5.9.0-rc1-1_amd64.deb",
-    destination: "/home/vagrant/Prism-HTTP/deps/"
-  config.vm.provision "file",
-    source: "deps/linux-headers-5.9.0-rc1_5.9.0-rc1-1_amd64.deb",
-    destination: "/home/vagrant/Prism-HTTP/deps/"
-  config.vm.provision "file",
-    source: "deps/linux-image-5.9.0-rc1-dbg_5.9.0-rc1-1_amd64.deb",
-    destination: "/home/vagrant/Prism-HTTP/deps/"
-  config.vm.provision "file",
-    source: "deps/linux-libc-dev_5.9.0-rc1-1_amd64.deb",
-    destination: "/home/vagrant/Prism-HTTP/deps/"
-  config.vm.provision "file",
-    source: "src",
+    source: Dir.pwd() + "/src",
     destination: "/home/vagrant/Prism-HTTP/"
   config.vm.provision "file",
-    source: "switch",
+    source: Dir.pwd() + "/switch",
     destination: "/home/vagrant/Prism-HTTP/"
   config.vm.provision "file",
-    source: "scripts",
-    destination: "/home/vagrant/Prism-HTTP/"
-end
-
-def switch_node_setup_file_provisioner(config)
-  config.vm.provision "file",
-    source: "deps/linux-image-4.18.0_4.18.0-1_amd64.deb",
-    destination: "/home/vagrant/Prism-HTTP/deps/"
-  config.vm.provision "file",
-    source: "deps/linux-headers-4.18.0_4.18.0-1_amd64.deb",
-    destination: "/home/vagrant/Prism-HTTP/deps/"
-  config.vm.provision "file",
-    source: "deps/linux-image-4.18.0-dbg_4.18.0-1_amd64.deb",
-    destination: "/home/vagrant/Prism-HTTP/deps/"
-  config.vm.provision "file",
-    source: "deps/linux-libc-dev_4.18.0-1_amd64.deb",
-    destination: "/home/vagrant/Prism-HTTP/deps/"
-  config.vm.provision "file",
-    source: "src",
-    destination: "/home/vagrant/Prism-HTTP/"
-  config.vm.provision "file",
-    source: "switch",
-    destination: "/home/vagrant/Prism-HTTP/"
-  config.vm.provision "file",
-    source: "scripts",
+    source: Dir.pwd() + "/scripts",
     destination: "/home/vagrant/Prism-HTTP/"
 end
 
