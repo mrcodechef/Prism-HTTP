@@ -22,10 +22,14 @@ echo "Installing dependencies (phase 1)"
 export NWORKERS=`nproc`
 export BUILD_ROOT=/home/vagrant
 bash /home/vagrant/Prism-HTTP/scripts/install_deps.sh
-dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-5.9.0-rc1_5.9.0-rc1-1_amd64.deb
-dpkg -i /home/vagrant/Prism-HTTP/deps/linux-headers-5.9.0-rc1_5.9.0-rc1-1_amd64.deb
-dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-5.9.0-rc1-dbg_5.9.0-rc1-1_amd64.deb
-dpkg -i /home/vagrant/Prism-HTTP/deps/linux-libc-dev_5.9.0-rc1-1_amd64.deb
+wget -nv https://web.sfc.wide.ad.jp/~river/packages/linux-image-5.9.0-rc1_5.9.0-rc1-1_amd64.deb
+wget -nv https://web.sfc.wide.ad.jp/~river/packages/linux-headers-5.9.0-rc1_5.9.0-rc1-1_amd64.deb
+wget -nv https://web.sfc.wide.ad.jp/~river/packages/linux-image-5.9.0-rc1-dbg_5.9.0-rc1-1_amd64.deb
+wget -nv https://web.sfc.wide.ad.jp/~river/packages/linux-libc-dev_5.9.0-rc1-1_amd64.deb
+dpkg -i linux-image-5.9.0-rc1_5.9.0-rc1-1_amd64.deb
+dpkg -i linux-headers-5.9.0-rc1_5.9.0-rc1-1_amd64.deb
+dpkg -i linux-image-5.9.0-rc1-dbg_5.9.0-rc1-1_amd64.deb
+dpkg -i linux-libc-dev_5.9.0-rc1-1_amd64.deb
 EOS
 
 #
@@ -38,10 +42,14 @@ echo "Installing dependencies (phase 1)"
 export NWORKERS=`nproc`
 export BUILD_ROOT=/home/vagrant
 bash /home/vagrant/Prism-HTTP/scripts/install_deps.sh
-dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-4.18.0_4.18.0-1_amd64.deb
-dpkg -i /home/vagrant/Prism-HTTP/deps/linux-headers-4.18.0_4.18.0-1_amd64.deb
-dpkg -i /home/vagrant/Prism-HTTP/deps/linux-image-4.18.0-dbg_4.18.0-1_amd64.deb
-dpkg -i /home/vagrant/Prism-HTTP/deps/linux-libc-dev_4.18.0-1_amd64.deb
+wget -nv https://web.sfc.wide.ad.jp/~river/packages/linux-image-4.18.0_4.18.0-1_amd64.deb
+wget -nv https://web.sfc.wide.ad.jp/~river/packages/linux-headers-4.18.0_4.18.0-1_amd64.deb
+wget -nv https://web.sfc.wide.ad.jp/~river/packages/linux-image-4.18.0-dbg_4.18.0-1_amd64.deb
+wget -nv https://web.sfc.wide.ad.jp/~river/packages/linux-libc-dev_4.18.0-1_amd64.deb
+dpkg -i linux-image-4.18.0_4.18.0-1_amd64.deb
+dpkg -i linux-headers-4.18.0_4.18.0-1_amd64.deb
+dpkg -i linux-image-4.18.0-dbg_4.18.0-1_amd64.deb
+dpkg -i linux-libc-dev_4.18.0-1_amd64.deb
 EOS
 
 #
@@ -241,7 +249,7 @@ Vagrant.configure("2") do |config|
       ip: "172.16.10.11",
       mac: "02:00:00:00:00:01"
     # Provision
-    prism_node_setup_file_provisioner(node)
+    setup_file_provisioner(node)
     node.vm.provision "shell", inline: $provision_prism_node_phase1
     node.vm.provision "reload"
     node.vm.provision "shell", inline: $provision_prism_node_phase2
@@ -257,7 +265,7 @@ Vagrant.configure("2") do |config|
       ip: "172.16.10.12",
       mac: "02:00:00:00:00:02"
     # Provision
-    prism_node_setup_file_provisioner(node)
+    setup_file_provisioner(node)
     node.vm.provision "shell", inline: $provision_prism_node_phase1
     node.vm.provision "reload"
     node.vm.provision "shell", inline: $provision_prism_node_phase2
@@ -273,7 +281,7 @@ Vagrant.configure("2") do |config|
       ip: "172.16.10.13",
       mac: "02:00:00:00:00:03"
     # Provision
-    prism_node_setup_file_provisioner(node)
+    setup_file_provisioner(node)
     node.vm.provision "shell", inline: $provision_prism_node_phase1
     node.vm.provision "reload"
     node.vm.provision "shell", inline: $provision_prism_node_phase2
@@ -309,7 +317,7 @@ Vagrant.configure("2") do |config|
       libvirt__forward_mode: "veryisolated",
       libvirt__dhcp_enabled: false
     # Provision
-    switch_node_setup_file_provisioner(node)
+    setup_file_provisioner(node)
     node.vm.provision "shell", inline: $provision_switch_phase1
     node.vm.provision "reload"
     node.vm.provision "shell", inline: $provision_switch_phase2
