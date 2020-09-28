@@ -10,11 +10,14 @@ All sources are published under Apache2 license unless there is no license text 
 
 ```
 # On top of this repo
-vagrant up --provider libvirt
+vagrant up --provider libvirt --no-parallel
 ```
 
 We observe sometimes the Vagrant fails to provision the nodes unexpectedly. In that case, destroy
 the nodes and retrying usually worked for us.
+
+Please do not remove `--no-parallel` since our Vagrant provisioner heavily use computing power of
+our external storage.
 
 ### Run `phttp-bench` application
 
