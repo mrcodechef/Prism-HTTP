@@ -8,6 +8,12 @@ All sources are published under Apache2 license unless there is no license text 
 
 ### Setup Vagrant environment
 
+#### Requirements
+
+- Vagrant 2.2.10 or above (only tested on Vagrant 2.2.10)
+- [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
+- [vagrant-reload](https://github.com/aidanns/vagrant-reload)
+
 ```
 # On top of this repo
 vagrant up --provider libvirt --no-parallel
@@ -18,6 +24,10 @@ the nodes and retrying usually worked for us.
 
 Please do not remove `--no-parallel` since our Vagrant provisioner heavily use computing power of
 our external storage.
+
+### Setup Baremetal environment
+
+Please see the Vagrantfile for required topology and provisioning procedure. 
 
 ### Run `phttp-bench` application
 
