@@ -14,6 +14,8 @@ All sources are published under Apache2 license unless there is no license text 
 - [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
 - [vagrant-reload](https://github.com/aidanns/vagrant-reload)
 
+#### Procedure
+
 ```
 # On top of this repo
 vagrant up --provider libvirt --no-parallel
@@ -27,7 +29,8 @@ our external storage.
 
 ### Setup Baremetal environment
 
-Please see the Vagrantfile for required topology and provisioning procedure. 
+See the Vagrantfile for required topology and provisioning procedure. The Linux distribution version
+should be the same as the one used in the Vagrant base box.
 
 ### Run `phttp-bench` application
 
