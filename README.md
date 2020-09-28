@@ -53,6 +53,7 @@ sudo ./bin/prism_switchd -s vale0 -I $(pwd)/include -f src/cpp/prism_switch.bpf.
 sudo phttp-bench-proxy --addr 172.16.10.11 --port 80 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --nworkers 1
 
 # HTTPS (Please replace server.crt/key to your own one)
+openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:2048 -subj /CN=localhost -keyout server.key -out server.crt
 sudo phttp-bench-proxy --addr 172.16.10.11 --port 443 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --tls --tls-crt server.crt --tls-key server.key --nworkers 1
 ```
 
@@ -104,6 +105,7 @@ sudo ./bin/prism_switchd -s vale0 -I $(pwd)/include -f src/cpp/prism_switch.bpf.
 sudo phttp-kvs-proxy --addr 172.16.10.11 --port 80 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --nworkers 1
 
 # HTTPS (Please replace server.crt/key to your own one)
+openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:2048 -subj /CN=localhost -keyout server.key -out server.crt
 sudo phttp-kvs-proxy --addr 172.16.10.11 --port 443 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --tls --tls-crt server.crt --tls-key server.key --nworkers 1
 ```
 
@@ -160,6 +162,7 @@ sudo ./bin/prism_switchd -s vale0 -I $(pwd)/include -f src/cpp/prism_switch.bpf.
 sudo phttp-kvs-repl-proxy --addr 172.16.10.11 --port 80 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --nworkers 1
 
 # HTTPS (Please replace server.crt/key to your own one)
+openssl req -x509 -sha256 -nodes -days 3650 -newkey rsa:2048 -subj /CN=localhost -keyout server.key -out server.crt
 sudo phttp-kvs-repl-proxy --addr 172.16.10.11 --port 443 --mac 02:00:00:00:00:01 --backlog 8192 --ho-addr 172.16.10.11 --ho-port 8080 --ho-backlog 64 --sw-addr 172.16.10.10 --sw-port 18080 --backends 172.16.10.12:8080,172.16.10.13:8080 --tls --tls-crt server.crt --tls-key server.key --nworkers 1
 ```
 
