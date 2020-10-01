@@ -14,6 +14,13 @@ All sources are published under Apache2 license unless there is no license text 
 - [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
 - [vagrant-reload](https://github.com/aidanns/vagrant-reload)
 
+In addition to this, you need approx 50GB of storage for VM images. If
+your libvirt image volume (usually /var/lib/libvirt/images) doesn't have
+enough volume, please prepare the capacity (e.g. Symlink the external
+storage mount point to /var/lib/libvirt/images or change the image volume
+location. c.f. 
+https://www.unixarena.com/2015/12/linux-kvm-change-libvirt-vm-image-store-path.html/)
+
 #### Procedure
 
 ```
